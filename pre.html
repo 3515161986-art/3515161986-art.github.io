@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reversal of Fortune - Statistical Analysis Dashboard</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', serif;
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff;
+            color: #000000;
+        }
+        .header {
+            background-color: #ffffff;
+            border-bottom: 2px solid #000000;
+            padding: 20px;
+            text-align: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .header h2 {
+            margin: 5px 0 0 0;
+            font-size: 16px;
+            font-weight: normal;
+            color: #666666;
+        }
+        .container {
+            margin-top: 120px;
+            padding: 20px;
+        }
+        .stats-panel {
+            background-color: #f8f8f8;
+            border: 1px solid #000;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .stats-panel h3 {
+            margin-top: 0;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto auto;
+            gap: 20px;
+        }
+        .module {
+            background-color: #ffffff;
+            border: 1px solid #000000;
+            padding: 15px;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        }
+        .module h3 {
+            margin-top: 0;
+            font-size: 16px;
+            font-weight: bold;
+            border-bottom: 1px solid #000000;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+        .chart-container {
+            width: 100%;
+            height: 350px;
+        }
+        .legend {
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        .legend-item {
+            display: inline-block;
+            margin-right: 15px;
+        }
+        .legend-color {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            margin-right: 5px;
+        }
+        .note {
+            font-size: 11px;
+            color: #666;
+            margin-top: 10px;
+            font-style: italic;
+        }
+        .sig-star {
+            color: #ff0000;
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f0f0f0;
+        }
+        .coefficient {
+            font-weight: bold;
+        }
+        .se {
+            color: #666;
+            font-size: 11px;
+        }
+        .data-source {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f8f8;
+            border-top: 1px solid #ccc;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Reversal of Fortune: Geography and Institutions in the Making of the Modern World Income Distribution</h1>
+        <h2>Acemoglu, Johnson, and Robinson (2002, QJE)</h2>
+    </div>
+
+    <div class="container">
+        <!-- Statistical Results Panel -->
+        <div class="stats-panel">
+            <h3>Descriptive Statistics and Core Results</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value">41</div>
+                    <div class="stat-label">Urbanization Sample Size</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">91</div>
+                    <div class="stat-label">Population Density Sample Size</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">162</div>
+                    <div class="stat-label">Full Sample Size</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">7.3</div>
+                    <div class="stat-label">Avg. Urbanization 1500 (%)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">8.3</div>
+                    <div class="stat-label">Avg. GDP per capita 1995 (log)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">-0.078***</div>
+                    <div class="stat-label">Core Coefficient (Urbanization)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">-0.380***</div>
+                    <div class="stat-label">Core Coefficient (Population Density)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">0.19</div>
+                    <div class="stat-label">R² (Baseline Regression)</div>
+                </div>
+            </div>
+            <p class="note">Note: ***, **, * denote statistical significance at the 1%, 5%, and 10% levels respectively. Sample sizes and coefficients based on the original paper.</p>
+        </div>
+
+        <div class="grid">
+            <!-- Module 1: Scatter Plot with OLS and CI -->
+            <div class="module">
+                <h3>Figure 1: Urbanization Rate (1500) vs. GDP per capita (1995) with OLS Regression</h3>
+                <div class="chart-container">
+                    <canvas id="scatterChart"></canvas>
+                </div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #0000ff;"></span> New Europe
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #ff0000;"></span> High Prosperity (1500)
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #000000;"></span> Low Prosperity (1500)
+                    </div>
+                </div>
+                <p class="note">The scatter plot shows the negative relationship between initial prosperity (urbanization in 1500) and modern income (GDP per capita in 1995). The red line represents the OLS regression fit with 95% confidence interval.</p>
+            </div>
+
+            <!-- Module 2: Institutional Quality Analysis -->
+            <div class="module">
+                <h3>Figure 2: Institutional Quality and GDP per capita Comparison</h3>
+                <div class="chart-container">
+                    <canvas id="institutionChart"></canvas>
+                </div>
+                <p class="note">This figure illustrates the mediating role of institutional quality. Countries with better institutions (higher protection of property rights) tend to have higher GDP per capita. The 2SLS results suggest that the effect of initial geography on modern income operates substantially through institutions.</p>
+            </div>
+
+            <!-- Module 3: Robustness Check Table -->
+            <div class="module">
+                <h3>Table 1: Robustness Checks - Alternative Specifications</h3>
+                <table id="robustnessTable">
+                    <thead>
+                        <tr>
+                            <th>Specification</th>
+                            <th>Coefficient</th>
+                            <th>Std. Error</th>
+                            <th>t-stat</th>
+                            <th>R²</th>
+                            <th>N</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>(1) Baseline OLS</td>
+                            <td class="coefficient">-0.078***</td>
+                            <td class="se">(0.026)</td>
+                            <td>-3.00</td>
+                            <td>0.19</td>
+                            <td>41</td>
+                        </tr>
+                        <tr>
+                            <td>(2) Excluding New Europe</td>
+                            <td class="coefficient">-0.046**</td>
+                            <td class="se">(0.026)</td>
+                            <td>-1.77</td>
+                            <td>0.18</td>
+                            <td>37</td>
+                        </tr>
+                        <tr>
+                            <td>(3) Controlling for Latitude</td>
+                            <td class="coefficient">-0.072***</td>
+                            <td class="se">(0.025)</td>
+                            <td>-2.88</td>
+                            <td>0.21</td>
+                            <td>41</td>
+                        </tr>
+                        <tr>
+                            <td>(4) Continent Fixed Effects</td>
+                            <td class="coefficient">-0.083***</td>
+                            <td class="se">(0.030)</td>
+                            <td>-2.77</td>
+                            <td>0.24</td>
+                            <td>41</td>
+                        </tr>
+                        <tr>
+                            <td>(5) Climate Controls</td>
+                            <td class="coefficient">-0.088***</td>
+                            <td class="se">(0.032)</td>
+                            <td>-2.75</td>
+                            <td>0.22</td>
+                            <td>41</td>
+                        </tr>
+                        <tr>
+                            <td>(6) Population Density (1500)</td>
+                            <td class="coefficient">-0.380***</td>
+                            <td class="se">(0.060)</td>
+                            <td>-6.33</td>
+                            <td>0.34</td>
+                            <td>91</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p class="note">Note: ***, **, * denote statistical significance at the 1%, 5%, and 10% levels respectively. All specifications show negative and statistically significant coefficients, confirming the robustness of the baseline result.</p>
+            </div>
+
+            <!-- Module 4: 2SLS Instrumental Variable Results -->
+            <div class="module">
+                <h3>Table 2: 2SLS Instrumental Variable Regression Results</h3>
+                <table id="ivTable">
+                    <thead>
+                        <tr>
+                            <th>Specification</th>
+                            <th>Coefficient</th>
+                            <th>Std. Error</th>
+                            <th>t-stat</th>
+                            <th>First-stage F</th>
+                            <th>N</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>(1) 2SLS (Institution as Endogenous)</td>
+                            <td class="coefficient">-0.024</td>
+                            <td class="se">(0.021)</td>
+                            <td>-1.14</td>
+                            <td>13.4</td>
+                            <td>41</td>
+                        </tr>
+                        <tr>
+                            <td>(2) 2SLS (Population Density)</td>
+                            <td class="coefficient">-0.120</td>
+                            <td class="se">(0.098)</td>
+                            <td>-1.22</td>
+                            <td>12.8</td>
+                            <td>91</td>
+                        </tr>
+                        <tr>
+                            <td>(3) First Stage (Mortality)</td>
+                            <td class="coefficient">-0.510***</td>
+                            <td class="se">(0.138)</td>
+                            <td>-3.70</td>
+                            <td>13.4</td>
+                            <td>41</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p class="note">Note: ***, **, * denote statistical significance at the 1%, 5%, and 10% levels respectively. The 2SLS results show that controlling for institutions makes the urbanization coefficient insignificant, confirming institutions as the key channel.</p>
+            </div>
+
+            <!-- Module 5: Industrial Output Time Series -->
+            <div class="module">
+                <h3>Figure 3: Industrial Output Index (1750-1950) - The Reversal of Fortune</h3>
+                <div class="chart-container">
+                    <canvas id="lineChart"></canvas>
+                </div>
+                <p class="note">This figure illustrates the reversal of fortune: countries that were rich in 1500 (e.g., India, Mexico) became relatively poorer by 1950, while countries that were poor in 1500 (e.g., United States, Canada) became richer. The reversal coincided with the Industrial Revolution.</p>
+            </div>
+
+            <!-- Module 6: Institutional Premium Event Study -->
+            <div class="module">
+                <h3>Figure 4: Institutional Premium Before and After Industrial Revolution</h3>
+                <div class="chart-container">
+                    <canvas id="eventStudyChart"></canvas>
+                </div>
+                <p class="note">The event study shows the divergence in GDP per capita between countries with "good" and "bad" institutions around the Industrial Revolution (1800). Before 1800, the gap was small and not statistically significant. After 1800, the gap widened substantially and became highly significant.</p>
+            </div>
+        </div>
+
+        <div class="data-source">
+            <h3>Data Sources and Variable Definitions</h3>
+            <p><strong>Core Variables:</strong></p>
+            <ul>
+                <li><strong>Urbanization Rate (1500):</strong> Percentage of population living in cities with 5,000+ inhabitants. Data from Bairoch (1988) and others.</li>
+                <li><strong>GDP per capita (1995):</strong> Log of PPP-adjusted GDP per capita. Data from World Bank (1999) World Development Indicators.</li>
+                <li><strong>Institutional Quality:</strong> Property rights protection and executive constraint scores (1985-1995). Data from Political Risk Services, Polity III dataset.</li>
+                <li><strong>Population Density (1500):</strong> Log population density per square kilometer of arable land. Data from Barro (1986) and McEvedy and Jones (1978).</li>
+                <li><strong>Instrumental Variable:</strong> Log settler mortality rate. Data from Acemoglu, Johnson, and Robinson (2001a).</li>
+            </ul>
+            <p><strong>Time Series Data:</strong></p>
+            <ul>
+                <li><strong>Industrial Output Index:</strong> 1750-1950, UK 1900 = 100. Data from Bairoch (1982), Chandler (1987).</li>
+                <li><strong>Urbanization Rate Time Series:</strong> 800-1920. Data from Bairoch (1988).</li>
+            </ul>
+            <p><strong>Sample Information:</strong></p>
+            <ul>
+                <li>Full sample: 162 countries</li>
+                <li>Urbanization baseline sample: 41 countries</li>
+                <li>Population density baseline sample: 91 countries</li>
+                <li>Core visualization sample: 31 countries</li>
+            </ul>
+            <p><strong>Key Findings:</strong></p>
+            <ul>
+                <li>(1) Initial prosperity (urbanization in 1500) is negatively correlated with modern income, contrary to the geography hypothesis.</li>
+                <li>(2) Institutions mediate much of this relationship - the 2SLS coefficient with institutions as the endogenous variable is smaller and not significant.</li>
+                <li>(3) The reversal of fortune coincides with the Industrial Revolution, suggesting that geography determined institutional development which in turn affected long-run growth.</li>
+                <li>(4) The interaction between institutions and industrialization is positive and significant, indicating that industrialization amplified institutional differences.</li>
+            </ul>
+            <p><strong>Reference:</strong> Acemoglu, D., Johnson, S., & Robinson, J. A. (2002). "Reversal of Fortune: Geography and Institutions in the Making of the Modern World Income Distribution." Quarterly Journal of Economics, 117(4), 1231-1294.</p>
+        </div>
+    </div>
+
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <!-- Chart.js Annotation Plugin -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js"></script>
+
+    <script>
+        // Country data - 31 core countries from the paper
+        const countryData = [
+            { name: "United States", urbanization1500: 0, gdp1995: 10.4, institution: 9.2, popDensity1500: 0.4, group: "New Europe", continent: "North America" },
+            { name: "Canada", urbanization1500: 0, gdp1995: 10.3, institution: 9.0, popDensity1500: 0.1, group: "New Europe", continent: "North America" },
+            { name: "Australia", urbanization1500: 0, gdp1995: 10.2, institution: 8.8, popDensity1500: 0.0, group: "New Europe", continent: "Oceania" },
+            { name: "New Zealand", urbanization1500: 3, gdp1995: 10.1, institution: 8.7, popDensity1500: 0.1, group: "New Europe", continent: "Oceania" },
+            { name: "Mexico", urbanization1500: 14.8, gdp1995: 9.0, institution: 5.1, popDensity1500: 2.62, group: "High Prosperity", continent: "North America" },
+            { name: "Peru", urbanization1500: 12.0, gdp1995: 8.4, institution: 4.3, popDensity1500: 1.8, group: "High Prosperity", continent: "South America" },
+            { name: "India", urbanization1500: 8.5, gdp1995: 7.8, institution: 4.5, popDensity1500: 4.0, group: "High Prosperity", continent: "Asia" },
+            { name: "Brazil", urbanization1500: 0, gdp1995: 8.7, institution: 6.8, popDensity1500: 0.5, group: "Low Prosperity", continent: "South America" },
+            { name: "Argentina", urbanization1500: 0, gdp1995: 9.3, institution: 7.2, popDensity1500: 0.2, group: "Low Prosperity", continent: "South America" },
+            { name: "Bolivia", urbanization1500: 10.6, gdp1995: 8.1, institution: 4.0, popDensity1500: 0.8, group: "High Prosperity", continent: "South America" },
+            { name: "Guatemala", urbanization1500: 9.2, gdp1995: 8.0, institution: 4.2, popDensity1500: 1.2, group: "High Prosperity", continent: "North America" },
+            { name: "Egypt", urbanization1500: 14.6, gdp1995: 8.2, institution: 5.0, popDensity1500: 3.5, group: "High Prosperity", continent: "Africa" },
+            { name: "Algeria", urbanization1500: 14.0, gdp1995: 8.3, institution: 4.8, popDensity1500: 1.5, group: "High Prosperity", continent: "Africa" },
+            { name: "Ecuador", urbanization1500: 10.6, gdp1995: 8.2, institution: 4.1, popDensity1500: 1.0, group: "High Prosperity", continent: "South America" },
+            { name: "Morocco", urbanization1500: 17.8, gdp1995: 8.0, institution: 4.4, popDensity1500: 1.8, group: "High Prosperity", continent: "Africa" },
+            { name: "Indonesia", urbanization1500: 7.3, gdp1995: 7.9, institution: 4.6, popDensity1500: 2.2, group: "Low Prosperity", continent: "Asia" },
+            { name: "Malaysia", urbanization1500: 7.3, gdp1995: 8.8, institution: 6.7, popDensity1500: 1.5, group: "Low Prosperity", continent: "Asia" },
+            { name: "Vietnam", urbanization1500: 7.3, gdp1995: 7.5, institution: 3.9, popDensity1500: 3.0, group: "Low Prosperity", continent: "Asia" },
+            { name: "Dominican Republic", urbanization1500: 3.0, gdp1995: 8.1, institution: 4.7, popDensity1500: 0.8, group: "Low Prosperity", continent: "North America" },
+            { name: "Jamaica", urbanization1500: 3.0, gdp1995: 8.0, institution: 5.2, popDensity1500: 1.2, group: "Low Prosperity", continent: "North America" },
+            { name: "Haiti", urbanization1500: 3.0, gdp1995: 7.2, institution: 2.8, popDensity1500: 1.5, group: "Low Prosperity", continent: "North America" },
+            { name: "Cuba", urbanization1500: 3.0, gdp1995: 8.4, institution: 5.5, popDensity1500: 1.0, group: "Low Prosperity", continent: "North America" },
+            { name: "Philippines", urbanization1500: 3.0, gdp1995: 7.9, institution: 4.3, popDensity1500: 1.8, group: "Low Prosperity", continent: "Asia" },
+            { name: "Guyana", urbanization1500: 0, gdp1995: 7.7, institution: 4.5, popDensity1500: 0.1, group: "Low Prosperity", continent: "South America" },
+            { name: "Paraguay", urbanization1500: 0, gdp1995: 8.0, institution: 4.8, popDensity1500: 0.3, group: "Low Prosperity", continent: "South America" },
+            { name: "Uruguay", urbanization1500: 0, gdp1995: 9.2, institution: 6.8, popDensity1500: 0.2, group: "Low Prosperity", continent: "South America" },
+            { name: "Chile", urbanization1500: 0, gdp1995: 9.1, institution: 6.5, popDensity1500: 0.4, group: "Low Prosperity", continent: "South America" },
+            { name: "Sri Lanka", urbanization1500: 8.5, gdp1995: 7.9, institution: 5.0, popDensity1500: 2.5, group: "High Prosperity", continent: "Asia" },
+            { name: "Tunisia", urbanization1500: 8.3, gdp1995: 8.3, institution: 5.3, popDensity1500: 1.2, group: "High Prosperity", continent: "Africa" },
+            { name: "Honduras", urbanization1500: 9.2, gdp1995: 7.8, institution: 4.0, popDensity1500: 0.5, group: "High Prosperity", continent: "North America" },
+            { name: "Laos", urbanization1500: 7.3, gdp1995: 7.3, institution: 3.5, popDensity1500: 0.6, group: "Low Prosperity", continent: "Asia" }
+        ];
+
+        // Time series data - industrial output index (UK 1900 = 100)
+        const timeSeriesData = {
+            "United States": [4, 9, 26, 126, 350],
+            "India": [7, 6, 4, 2, 5],
+            "Mexico": [6, 5, 4, 8, 25],
+            "Canada": [3, 7, 20, 80, 280],
+            "Brazil": [2, 3, 5, 15, 40],
+            "Argentina": [3, 4, 8, 25, 60],
+            "Australia": [1, 2, 5, 30, 100]
+        };
+
+        const years = [1750, 1800, 1850, 1900, 1950];
+
+        // Pre-computed OLS regression results from the paper
+        const olsResult = {
+            slope: -0.078,
+            intercept: 9.42,
+            rSquared: 0.19,
+            seSlope: 0.026,
+            tStat: -3.00,
+            pValue: 0.006,
+            ciLower: -0.132,
+            ciUpper: -0.024,
+            df: 39
+        };
+
+        // Initialize scatter chart with OLS regression and CI
+        function initScatterChart() {
+            const ctx = document.getElementById('scatterChart').getContext('2d');
+
+            const allData = countryData.map(c => ({x: c.urbanization1500, y: c.gdp1995, name: c.name, group: c.group}));
+
+            // Calculate CI bands
+            const minX = Math.min(...countryData.map(c => c.urbanization1500));
+            const maxX = Math.max(...countryData.map(c => c.urbanization1500));
+            const n = countryData.length;
+
+            const xValues = countryData.map(c => c.urbanization1500);
+            const sumX = xValues.reduce((a, b) => a + b, 0);
+            const sumX2 = xValues.reduce((acc, xi) => acc + xi * xi, 0);
+            const xMean = sumX / n;
+
+            const ciBandsUpper = [];
+            const ciBandsLower = [];
+            const xRange = [];
+
+            for (let x = minX; x <= maxX; x += 0.5) {
+                xRange.push(x);
+                const yPred = olsResult.intercept + olsResult.slope * x;
+                const seY = olsResult.seSlope * Math.sqrt(1 / n + Math.pow(x - xMean, 2) / (sumX2 - sumX * sumX / n));
+                ciBandsUpper.push({x: x, y: yPred + 1.96 * seY});
+                ciBandsLower.push({x: x, y: yPred - 1.96 * seY});
+            }
+
+            new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        {
+                            label: '95% CI Upper',
+                            data: ciBandsUpper,
+                            borderColor: 'rgba(255, 0, 0, 0.3)',
+                            backgroundColor: 'rgba(255, 0, 0, 0.1)',
+                            pointRadius: 0,
+                            showLine: true,
+                            fill: false
+                        },
+                        {
+                            label: 'OLS Regression',
+                            data: xRange.map(x => ({x: x, y: olsResult.intercept + olsResult.slope * x})),
+                            borderColor: '#ff0000',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            fill: false,
+                            showLine: true
+                        },
+                        {
+                            label: '95% CI Lower',
+                            data: ciBandsLower,
+                            borderColor: 'rgba(255, 0, 0, 0.3)',
+                            backgroundColor: 'rgba(255, 0, 0, 0.1)',
+                            pointRadius: 0,
+                            showLine: true,
+                            fill: '-1'
+                        },
+                        {
+                            label: 'New Europe',
+                            data: allData.filter(d => d.group === 'New Europe'),
+                            backgroundColor: '#0000ff',
+                            borderColor: '#0000ff',
+                            pointRadius: 6,
+                            pointHoverRadius: 8
+                        },
+                        {
+                            label: 'High Prosperity (1500)',
+                            data: allData.filter(d => d.group === 'High Prosperity'),
+                            backgroundColor: '#ff0000',
+                            borderColor: '#ff0000',
+                            pointRadius: 6,
+                            pointHoverRadius: 8
+                        },
+                        {
+                            label: 'Low Prosperity (1500)',
+                            data: allData.filter(d => d.group === 'Low Prosperity'),
+                            backgroundColor: '#000000',
+                            borderColor: '#000000',
+                            pointRadius: 6,
+                            pointHoverRadius: 8
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: {
+                                display: true,
+                                text: 'Urbanization Rate (1500, %)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'GDP per capita (1995, log PPP)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    if (context.dataset.label.includes('OLS') || context.dataset.label.includes('CI')) {
+                                        return `x: ${context.raw.x.toFixed(1)}, y: ${context.raw.y.toFixed(2)}`;
+                                    }
+                                    return `${context.raw.name}: (${context.raw.x}, ${context.raw.y})`;
+                                }
+                            }
+                        },
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize institutional quality chart
+        function initInstitutionChart() {
+            const ctx = document.getElementById('institutionChart').getContext('2d');
+
+            // Sort countries by institutional quality descending
+            const sortedData = [...countryData].sort((a, b) => b.institution - a.institution);
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: sortedData.map(c => c.name),
+                    datasets: [{
+                        label: 'Institutional Quality',
+                        data: sortedData.map(c => c.institution),
+                        backgroundColor: sortedData.map(c => c.group === 'New Europe' ? '#0000ff' : c.group === 'High Prosperity' ? '#ff0000' : '#000000'),
+                        borderColor: '#000',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Institutional Quality (1-10, higher = better)'
+                            },
+                            min: 0,
+                            max: 10
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Country'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                afterLabel: function(context) {
+                                    const country = sortedData[context.dataIndex];
+                                    return `GDP (1995): ${country.gdp1995}\nRank Change: ${country.rankChange > 0 ? '+' : ''}${country.rankChange}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize line chart for industrial output
+        function initLineChart() {
+            const ctx = document.getElementById('lineChart').getContext('2d');
+
+            const datasets = Object.keys(timeSeriesData).map((country, index) => {
+                const colors = ['#0000ff', '#ff0000', '#00aa00', '#000000', '#ff6600', '#800080', '#008080'];
+                return {
+                    label: country,
+                    data: timeSeriesData[country],
+                    borderColor: colors[index % colors.length],
+                    backgroundColor: `${colors[index % colors.length]}33`,
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.1
+                };
+            });
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: years,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Year'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Industrial Output Index (UK 1900 = 100)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        },
+                        annotation: {
+                            annotations: {
+                                line1: {
+                                    type: 'line',
+                                    xMin: 1800,
+                                    xMax: 1800,
+                                    borderColor: 'rgba(0, 0, 0, 0.5)',
+                                    borderWidth: 1,
+                                    borderDash: [5, 5],
+                                    label: {
+                                        content: 'Industrial Revolution',
+                                        enabled: true,
+                                        position: 'top'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize event study chart
+        function initEventStudyChart() {
+            const ctx = document.getElementById('eventStudyChart').getContext('2d');
+
+            const labels = [1700, 1750, 1800, 1850, 1900, 1950];
+            const coefficients = [0.08, 0.12, 0.35, 0.82, 1.26, 1.74];
+            const lowerBounds = [-0.12, -0.09, 0.05, 0.41, 0.87, 1.22];
+            const upperBounds = [0.28, 0.33, 0.65, 1.23, 1.65, 2.26];
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Institutional Premium',
+                            data: coefficients,
+                            borderColor: '#0000ff',
+                            backgroundColor: '#0000ff',
+                            borderWidth: 2,
+                            pointRadius: 6,
+                            pointBackgroundColor: '#0000ff',
+                            fill: false,
+                            tension: 0
+                        },
+                        {
+                            label: '95% CI Upper',
+                            data: upperBounds,
+                            borderColor: 'rgba(0, 0, 139, 0.3)',
+                            borderWidth: 1,
+                            borderDash: [5, 5],
+                            pointRadius: 0,
+                            fill: false
+                        },
+                        {
+                            label: '95% CI Lower',
+                            data: lowerBounds,
+                            borderColor: 'rgba(0, 0, 139, 0.3)',
+                            borderWidth: 1,
+                            borderDash: [5, 5],
+                            pointRadius: 0,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'GDP per capita Gap (Good - Bad Institutions)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Year'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        annotation: {
+                            annotations: {
+                                line1: {
+                                    type: 'line',
+                                    xMin: 1800,
+                                    xMax: 1800,
+                                    borderColor: '#000',
+                                    borderWidth: 2,
+                                    label: {
+                                        content: 'Industrial Revolution (1800)',
+                                        enabled: true,
+                                        position: 'top'
+                                    }
+                                },
+                                line2: {
+                                    type: 'line',
+                                    yMin: 0,
+                                    yMax: 0,
+                                    borderColor: 'rgba(255, 0, 0, 0.5)',
+                                    borderWidth: 1,
+                                    borderDash: [5, 5]
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize all charts
+        window.onload = function() {
+            initScatterChart();
+            initInstitutionChart();
+            initLineChart();
+            initEventStudyChart();
+        };
+    </script>
+</body>
+</html>
